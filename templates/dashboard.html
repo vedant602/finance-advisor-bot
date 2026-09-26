@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Finance Advisor Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-indigo-600 p-4 text-white flex justify-between items-center shadow-md">
+        <a href="/dashboard" class="font-bold text-xl">💰 Finance Advisor Bot</a>
+        <div>
+            <a href="/dashboard" class="mr-4 font-semibold hover:underline">Dashboard</a>
+            <a href="/ai-insights" class="mr-4 font-semibold hover:underline">AI Insights</a>
+            <a href="/logout" class="bg-red-500 px-3 py-1.5 rounded-lg font-semibold hover:bg-red-600">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6 max-w-6xl">
+        <h1 class="text-2xl font-bold mb-6">Welcome, {{ username }}! 👋</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="p-3 mb-6 rounded text-white text-sm {% if category == 'danger' %}bg-red-500{% else %}bg-green-500{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-green-500">
+                <h3 class="text-gray-500 font-semibold text-sm">Total Income</h3>
+                <p class="text-3xl font-bold text-green-600 mt-1">${{ "%.2f"|format(total_income) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-red-500">
+                <h3 class="text-gray-500 font-semibold text-sm">Total Expense</h3>
+                <p class="text-3xl font-bold text-red-600 mt-1">${{ "%.2f"|format(total_expense) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-indigo-500">
+                <h3 class="text-gray-500 font-semibold text-sm">Net Balance</h3>
+                <p class="text-3xl font-bold text-indigo-600 mt-1">${{ "%.2f"|format(balance) }}</p>
+            </div>
+        </div>
+
+        <!-- Forms Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Add Income</h3>
+                <form action="/add-income" method="POST" class="space-y-4">
+                    <input type="number" step="0.01" name="amount" placeholder="Amount ($)" required class="w-full border p-2.5 rounded-lg">
+                    <input type="text" name="source" placeholder="Source (e.g. Salary, Freelance)" required class="w-full border p-2.5 rounded-lg">
+                    <button type="submit" class="bg-green-600 text-white font-bold px-4 py-2.5 rounded-lg hover:bg-green-700 w-full">Add Income</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Add Expense</h3>
+                <form action="/add-expense" method="POST" class="space-y-4">
+                    <input type="number" step="0.01" name="amount" placeholder="Amount ($)" required class="w-full border p-2.5 rounded-lg">
+                    <select name="category" required class="w-full border p-2.5 rounded-lg">
+                        <option value="Rent">Rent</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                    </select>
+                    <input type="text" name="description" placeholder="Description (Optional)" class="w-full border p-2.5 rounded-lg">
+                    <button type="submit" class="bg-red-600 text-white font-bold px-4 py-2.5 rounded-lg hover:bg-red-700 w-full">Add Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-lg font-bold mb-4 border-b pb-2">Recent Income</h3>
+                <ul class="space-y-2">
+                    {% for inc in incomes %}
+                    <li class="flex justify-between border-b py-2 text-sm">
+                        <span class="font-medium">{{ inc['source'] }}</span>
+                        <span class="text-green-600 font-bold">+${{ "%.2f"|format(inc['amount']) }}</span>
+                    </li>
+                    {% else %}
+                    <li class="text-gray-400 text-sm">No income recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="text-lg font-bold mb-4 border-b pb-2">Recent Expenses</h3>
+                <ul class="space-y-2">
+                    {% for exp in expenses %}
+                    <li class="flex justify-between border-b py-2 text-sm">
+                        <span><strong class="text-indigo-600">{{ exp['category'] }}</strong> - {{ exp['description'] }}</span>
+                        <span class="text-red-600 font-bold">-${{ "%.2f"|format(exp['amount']) }}</span>
+                    </li>
+                    {% else %}
+                    <li class="text-gray-400 text-sm">No expenses recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

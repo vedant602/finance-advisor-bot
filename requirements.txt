@@ -1,0 +1,5 @@
+flask
+werkzeug
+python-dotenv
+google-genai
+gunicorn
